@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Healthcare Assistant</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center">Disease Prediction and Management</h2>
+    <form id="healthForm">
+        <div class="form-group">
+            <label for="age">Age:</label>
+            <input type="number" class="form-control" id="age" required>
+        </div>
+        <div class="form-group">
+            <label for="bloodPressure">Blood Pressure:</label>
+            <input type="number" class="form-control" id="bloodPressure" required>
+        </div>
+        <div class="form-group">
+            <label for="heartRate">Heart Rate:</label>
+            <input type="number" class="form-control" id="heartRate" required>
+        </div>
+        <div class="form-group">
+            <label for="glucoseLevel">Glucose Level:</label>
+            <input type="number" class="form-control" id="glucoseLevel" required>
+        </div>
+        <div class="form-group">
+            <label for="cholesterol">Cholesterol:</label>
+            <input type="number" class="form-control" id="cholesterol" required>
+        </div>
+        <div class="form-group">
+            <label for="bmi">BMI:</label>
+            <input type="number" class="form-control" id="bmi" required>
+        </div>
+        <div class="form-group">
+            <label for="familyHistory">Family History (1 = Yes, 0 = No):</label>
+            <input type="number" class="form-control" id="familyHistory" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Predict Disease Risk</button>
+    </form>
+
+    <div id="predictionResult" class="mt-4"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Handle form submission
+    $('#healthForm').on('submit', function (e) {
+        e.preventDefault();
+
+        // Get form data
+        var formData = {
+            age: $('#age').val(),
+            blood_pressure: $('#bloodPressure').val(),
+            heart_rate: $('#heartRate').val(),
+            glucose_level: $('#glucoseLevel').val(),
+            cholesterol: $('#cholesterol').val(),
+            bmi: $('#bmi').val(),
+            family_history: $('#familyHistory').val()
+        };
+
+        // Send data to Flask API
+        $.ajax({
+            url: 'http://127.0.0.1:5000/api/predict',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (response) {
+                // Display prediction and SHAP explanation
+                var predictionText = response.prediction == 1 ? "Disease risk detected!" : "No disease risk detected.";
+                var shapExplanation = "SHAP Explanation: " + response.shapExplanation.join(', ');
+
+                $('#predictionResult').html(`
+                    <h4>Prediction: ${predictionText}</h4>
+                    <p>${shapExplanation}</p>
+                `);
+            },
+            error: function (err) {
+                console.log("Error in prediction:", err);
+                $('#predictionResult').html("<p class='text-danger'>Error predicting disease risk.</p>");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
